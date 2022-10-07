@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  selenium_hub:
+    image: selenium/hub
+    ports: 
+      - 4444:4444
+  chrome_browser:
+    image: selenium/node-chrome:beta
+    shm_size: 2gb
+    depends_on:
+      - selenium_hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium_hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442 
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+
+  appium_android_device:
+    image: appium/appium
+    depends_on:
+      - selenium_hub
+    ports:
+      - 4723:4723
+    privileged: true
+    volumes:
+      - /dev/bus/usb:/dev/bus/usb
+      - ~/.android:/root/.android
+    environment:
+      - CONNECT_TO_GRID
+      - SELENIUM_HOST=selenium_hub
